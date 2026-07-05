@@ -7,10 +7,10 @@ import { buildExam } from "@/lib/session";
 import type { AnswerMap } from "@/lib/session";
 
 describe("exam data", () => {
-  it("contains two complete 200-question sets with the TOEIC-style blueprint", () => {
-    expect(allQuestions).toHaveLength(400);
+  it("contains three complete 200-question sets with the TOEIC-style blueprint", () => {
+    expect(allQuestions).toHaveLength(600);
     for (const item of examBlueprint) {
-      expect(allQuestions.filter((question) => question.part === item.part)).toHaveLength(item.count * 2);
+      expect(allQuestions.filter((question) => question.part === item.part)).toHaveLength(item.count * 3);
     }
   });
 
