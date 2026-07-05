@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+
+# Next.js build outputs
+.next/
+out/
+
+# Production and temporary build artifacts
+dist/
+build/
+coverage/
+.turbo/
+.vercel/
+
+# Environment variables and local secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/
+
+# Codex / local agent workspace metadata
+.agents/
+.codex/
+
+# TypeScript cache
+*.tsbuildinfo
+
