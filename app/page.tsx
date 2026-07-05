@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { allQuestions, examBlueprint, partLabels } from "@/lib/exam-data";
 import { scoreExam } from "@/lib/scoring";
-import { buildExam, countByPart, getQuestionStatus, type AnswerMap } from "@/lib/session";
+import { buildExam, countByPart, getQuestionStatus, shuffleQuestionChoices, type AnswerMap } from "@/lib/session";
 import type { ChoiceId, ExamMode, PartNumber, Question } from "@/lib/types";
 
 const modeCards: Array<{
@@ -87,12 +87,16 @@ export default function Home() {
   }, [mode, secondsLeft]);
 
   const currentQuestions = mode === "library" ? allQuestions : examQuestions;
+  const libraryQuestions = useMemo(
+    () => allQuestions.map((question, index) => shuffleQuestionChoices(question, seed + 50000 + index)),
+    [seed],
+  );
   const filteredQuestions = useMemo(() => {
     if (mode === "library" && partFilter !== "all") {
-      return allQuestions.filter((question) => question.part === partFilter);
+      return libraryQuestions.filter((question) => question.part === partFilter);
     }
-    return currentQuestions;
-  }, [currentQuestions, mode, partFilter]);
+    return mode === "library" ? libraryQuestions : currentQuestions;
+  }, [currentQuestions, libraryQuestions, mode, partFilter]);
 
   const activeQuestion = filteredQuestions[Math.min(activeIndex, filteredQuestions.length - 1)];
   const score = useMemo(() => scoreExam(examQuestions, answers), [answers, examQuestions]);

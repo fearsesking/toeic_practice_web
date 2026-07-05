@@ -1,5 +1,5 @@
 import { examBlueprint } from "@/lib/exam-data";
-import type { ChoiceId, Question } from "@/lib/types";
+import type { Choice, ChoiceId, Question } from "@/lib/types";
 
 export type AnswerMap = Record<string, ChoiceId>;
 export type QuestionStatus = "unanswered" | "answered" | "correct" | "wrong";
@@ -23,10 +23,40 @@ export function shuffleWithSeed<T>(items: T[], seed: number): T[] {
   return output;
 }
 
+function hashString(value: string) {
+  return value.split("").reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) >>> 0, 0);
+}
+
+function relabelChoices(choices: Choice[]): Choice[] {
+  return choices.map((choice, index) => ({ ...choice, id: String.fromCharCode(65 + index) as ChoiceId }));
+}
+
+export function shuffleQuestionChoices(question: Question, seed: number): Question {
+  const correctText = question.choices.find((choice) => choice.id === question.answer)?.text;
+  if (!correctText) return question;
+
+  const shuffledChoices = relabelChoices(shuffleWithSeed(question.choices, seed + hashString(question.id)));
+  const answer = shuffledChoices.find((choice) => choice.text === correctText)?.id ?? question.answer;
+  const audioScript = [1, 2].includes(question.part)
+    ? `${question.part === 2 ? `Question: ${question.prompt}\n` : ""}${shuffledChoices
+        .map((choice) => `${choice.id}. ${choice.text}`)
+        .join("\n")}`
+    : question.audioScript;
+
+  return {
+    ...question,
+    choices: shuffledChoices,
+    answer,
+    audioScript,
+  };
+}
+
 export function buildExam(pool: Question[], seed: number): Question[] {
   return examBlueprint.flatMap((blueprint, index) => {
     const questions = pool.filter((question) => question.part === blueprint.part);
-    return shuffleWithSeed(questions, seed + index).slice(0, blueprint.count);
+    return shuffleWithSeed(questions, seed + index)
+      .slice(0, blueprint.count)
+      .map((question, questionIndex) => shuffleQuestionChoices(question, seed + index * 1000 + questionIndex));
   });
 }
 

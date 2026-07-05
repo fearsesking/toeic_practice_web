@@ -35,6 +35,17 @@ describe("exam data", () => {
       expect(exam.filter((question) => question.part === item.part)).toHaveLength(item.count);
     }
   });
+
+  it("shuffles choice labels so correct answers are not fixed to A", () => {
+    const exam = buildExam(allQuestions, 12345);
+    const partOneAnswers = exam.filter((question) => question.part === 1).map((question) => question.answer);
+    expect(new Set(partOneAnswers).size).toBeGreaterThan(1);
+
+    const nextExam = buildExam(allQuestions, 67890);
+    const firstRunAnswers = exam.map((question) => `${question.id}:${question.answer}`).join("|");
+    const secondRunAnswers = nextExam.map((question) => `${question.id}:${question.answer}`).join("|");
+    expect(firstRunAnswers).not.toBe(secondRunAnswers);
+  });
 });
 
 describe("scoring", () => {
@@ -46,5 +57,11 @@ describe("scoring", () => {
   it("returns a 990 total for all-correct answers", () => {
     const answers: AnswerMap = Object.fromEntries(allQuestions.map((question) => [question.id, question.answer]));
     expect(scoreExam(allQuestions, answers).totalScaled).toBe(990);
+  });
+
+  it("scores shuffled exam choices using their displayed answer labels", () => {
+    const exam = buildExam(allQuestions, 12345);
+    const answers: AnswerMap = Object.fromEntries(exam.map((question) => [question.id, question.answer]));
+    expect(scoreExam(exam, answers).totalScaled).toBe(990);
   });
 });
