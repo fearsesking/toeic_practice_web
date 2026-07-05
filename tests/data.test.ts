@@ -1,14 +1,16 @@
 import { describe, expect, it } from "vitest";
+import fs from "node:fs";
+import path from "node:path";
 import { allQuestions, examBlueprint } from "@/lib/exam-data";
 import { rawToScaled, scoreExam } from "@/lib/scoring";
 import { buildExam } from "@/lib/session";
 import type { AnswerMap } from "@/lib/session";
 
 describe("exam data", () => {
-  it("contains one complete 200-question set with the TOEIC-style blueprint", () => {
-    expect(allQuestions).toHaveLength(200);
+  it("contains two complete 200-question sets with the TOEIC-style blueprint", () => {
+    expect(allQuestions).toHaveLength(400);
     for (const item of examBlueprint) {
-      expect(allQuestions.filter((question) => question.part === item.part)).toHaveLength(item.count);
+      expect(allQuestions.filter((question) => question.part === item.part)).toHaveLength(item.count * 2);
     }
   });
 
@@ -17,6 +19,10 @@ describe("exam data", () => {
       expect(question.choices.length).toBeGreaterThanOrEqual(3);
       expect(question.choices.some((choice) => choice.id === question.answer)).toBe(true);
       expect(question.explanation.length).toBeGreaterThan(0);
+      if (question.part === 1) {
+        expect(question.imageSrc).toBeTruthy();
+        expect(fs.existsSync(path.join(process.cwd(), "public", question.imageSrc!.replace(/^\//, "")))).toBe(true);
+      }
       if ([3, 4].includes(question.part)) expect(question.audioScript).toBeTruthy();
       if ([6, 7].includes(question.part)) expect(question.passage).toBeTruthy();
     }

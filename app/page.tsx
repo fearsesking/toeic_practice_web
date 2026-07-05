@@ -1,6 +1,7 @@
 "use client";
 
 import { BookOpen, CheckCircle2, Clock3, Library, RotateCcw, Shuffle, TimerReset } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { allQuestions, examBlueprint, partLabels } from "@/lib/exam-data";
 import { scoreExam } from "@/lib/scoring";
@@ -389,6 +390,18 @@ function QuestionPanel({
         <div className="mt-4 rounded-lg border border-orange-100 bg-orange-50 p-4">
           <p className="text-xs font-semibold uppercase tracking-normal text-orange-800">Listening script placeholder</p>
           <p className="mt-2 whitespace-pre-line text-sm leading-6 text-stone-800">{question.audioScript}</p>
+        </div>
+      )}
+
+      {question.imageSrc && (
+        <div className="mt-4 overflow-hidden rounded-lg border border-orange-100 bg-stone-100">
+          <Image
+            src={question.imageSrc}
+            alt={question.imageAlt ?? "TOEIC Part 1 practice photograph"}
+            width={1024}
+            height={768}
+            className="aspect-[4/3] w-full object-cover"
+          />
         </div>
       )}
 

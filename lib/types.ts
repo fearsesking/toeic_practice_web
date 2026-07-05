@@ -19,6 +19,7 @@ export type Question = {
   explanation: string;
   passage?: string;
   audioScript?: string;
+  imageSrc?: string;
   imageAlt?: string;
 };
 
